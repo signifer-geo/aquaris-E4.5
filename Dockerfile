@@ -12,7 +12,7 @@ RUN dpkg --add-architecture i386 && \
       bash ca-certificates git \
       build-essential make gcc g++ \
       bc bison flex \
-      perl python3 \
+      perl python3 python-is-python3 \
       rsync file unzip xz-utils \
       libssl-dev \
       libncurses5-dev libncursesw5-dev \
