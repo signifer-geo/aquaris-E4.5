@@ -22,6 +22,55 @@ export LC_ALL=C
 export LANG=C
 export TZ=UTC
 
+
+# --- ensure makeMtk.ini exists (MTK scripts expect it) ---
+INI="./makeMtk.ini"
+
+# If something weird exists (e.g., directory), remove it.
+if [[ -e "$INI" && ! -f "$INI" ]]; then
+  echo "[WARN] $INI exists but is not a regular file. Removing it."
+  rm -rf "$INI"
+fi
+
+# If missing, create a minimal one.
+if [[ ! -f "$INI" ]]; then
+  echo "[INFO] $INI missing. Creating a minimal one."
+
+  # Determine whether "krillin" is a real project folder
+  if [[ -f "mediatek/config/${TARGET}/ProjectConfig.mk" ]]; then
+    REAL_PROJECT="${TARGET}"
+  else
+    # Try to auto-detect a project whose ProjectConfig.mk mentions "krillin"
+    REAL_PROJECT="$(grep -RIl --max-count=1 -i "krillin" mediatek/config/*/ProjectConfig.mk 2>/dev/null \
+      | sed -E 's#^mediatek/config/([^/]+)/ProjectConfig\.mk$#\1#' \
+      | head -n 1 || true)"
+
+    if [[ -z "$REAL_PROJECT" ]]; then
+      echo "[ERROR] Could not find mediatek/config/${TARGET}/ProjectConfig.mk"
+      echo "[ERROR] and could not auto-detect a project mentioning '${TARGET}'."
+      echo "[INFO] Available projects are:"
+      ls -1 mediatek/config | head -n 200
+      exit 13
+    fi
+  fi
+
+  cat > "$INI" <<EOF
+# Auto-generated for reproducible builds/CI
+# Alias mapping (used when project folder doesn't exist):
+${TARGET} = ${REAL_PROJECT}
+
+# State keys expected by MTK scripts:
+project = ${REAL_PROJECT}
+build_mode = eng
+EOF
+
+  echo "[INFO] Using project: ${REAL_PROJECT}"
+fi
+# --- end ensure makeMtk.ini exists ---
+
+
+
+
 ./makeMtk -t "${TARGET}" "${MODE}" "${WHAT}"
 
 echo "[INFO] Build finished."
