@@ -34,6 +34,8 @@ jobs:
             bash -lc "./tools/build.sh krillin"
 
       - name: Build boot.img (kernel + Ubuntu Touch ramdisk)
+        env:
+          SHA: ${{ github.sha }}
         run: |
           docker run --rm \
             --user 0:0 \
@@ -44,7 +46,7 @@ jobs:
               set -e
               apt-get update && apt-get install -y --no-install-recommends abootimg && rm -rf /var/lib/apt/lists/*
 
-              SHA=$(git rev-parse --short HEAD)
+              SHA_SHORT="${SHA:0:7}"
 
               K=out/target/product/krillin/obj/KERNEL_OBJ/arch/arm/boot/zImage
               test -f "$K" || { echo "Missing kernel at $K"; exit 1; }
@@ -54,16 +56,15 @@ jobs:
 
               mkdir -p artifacts
 
-              cp "$K" artifacts/zImage-krillin-${SHA}
+              cp "$K" artifacts/zImage-krillin-${SHA_SHORT}
 
-              abootimg --create artifacts/new_boot-krillin-${SHA}.img \
+              abootimg --create artifacts/new_boot-krillin-${SHA_SHORT}.img \
                 -f boot_template/bootimg.cfg \
                 -k "$K" \
                 -r boot_template/initrd.img
 
               echo "Built:"
               ls -lh artifacts/*
-            '
 
       - name: Collect artifacts
         run: |
