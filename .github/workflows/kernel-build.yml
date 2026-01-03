@@ -27,10 +27,12 @@ jobs:
       - name: Build kernel (krillin)
         run: |
           docker run --rm \
+            --user "$(id -u):$(id -g)" \
             -v "${{ github.workspace }}:/work" \
             -w /work \
             aquaris-e45-kernel:ci \
             bash -lc "./tools/build.sh krillin"
+
 
       - name: Collect artifacts
         run: |

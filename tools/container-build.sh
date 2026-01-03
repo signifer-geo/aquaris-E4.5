@@ -13,6 +13,7 @@ $ENGINE build -t "$IMAGE" .
 
 # Mount repo and run build inside container
 $ENGINE run --rm -it \
+  --user "$(id -u):$(id -g)" \
   -v "$ROOT:/work" \
   -w /work \
   "$IMAGE" \
