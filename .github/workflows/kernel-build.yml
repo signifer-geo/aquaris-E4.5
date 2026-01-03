@@ -39,6 +39,7 @@ jobs:
         run: |
           docker run --rm \
             --user 0:0 \
+            -e SHA="${SHA}" \
             -v "${{ github.workspace }}:/work" \
             -w /work \
             aquaris-e45-kernel:ci \
@@ -55,16 +56,17 @@ jobs:
               test -f boot_template/initrd.img  || { echo "Missing boot_template/initrd.img"; exit 1; }
 
               mkdir -p artifacts
+              cp "$K" "artifacts/zImage-krillin-${SHA_SHORT}"
 
-              cp "$K" artifacts/zImage-krillin-${SHA_SHORT}
-
-              abootimg --create artifacts/new_boot-krillin-${SHA_SHORT}.img \
+              abootimg --create "artifacts/new_boot-krillin-${SHA_SHORT}.img" \
                 -f boot_template/bootimg.cfg \
                 -k "$K" \
                 -r boot_template/initrd.img
 
               echo "Built:"
               ls -lh artifacts/*
+            '
+
 
       - name: Collect artifacts
         run: |
