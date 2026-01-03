@@ -33,6 +33,35 @@ jobs:
             aquaris-e45-kernel:ci \
             bash -lc "./tools/build.sh krillin"
 
+      - name: Build boot.img (kernel + Ubuntu Touch ramdisk)
+        run: |
+          # Install abootimg in the container and repack
+          docker run --rm \
+            --user 0:0 \
+            -v "${{ github.workspace }}:/work" \
+            -w /work \
+            aquaris-e45-kernel:ci \
+            bash -lc '
+              apt-get update && apt-get install -y --no-install-recommends abootimg && rm -rf /var/lib/apt/lists/*
+
+              K=out/target/product/krillin/obj/KERNEL_OBJ/arch/arm/boot/zImage
+              test -f "$K" || { echo "Missing kernel at $K"; exit 1; }
+
+              test -f boot_template/bootimg.cfg || { echo "Missing boot_template/bootimg.cfg"; exit 1; }
+              test -f boot_template/initrd.img  || { echo "Missing boot_template/initrd.img"; exit 1; }
+
+              mkdir -p artifacts
+              cp "$K" artifacts/zImage-krillin
+
+              # Create a boot image using the known-good Ubuntu Touch ramdisk + the new kernel
+              abootimg --create artifacts/new_boot.img \
+                -f boot_template/bootimg.cfg \
+                -k "$K" \
+                -r boot_template/initrd.img
+
+              echo "[INFO] Built artifacts/new_boot.img"
+              ls -lh artifacts/new_boot.img artifacts/zImage-krillin
+            '
 
       - name: Collect artifacts
         run: |
