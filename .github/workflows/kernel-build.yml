@@ -1,0 +1,49 @@
+name: kernel-build
+
+on:
+  push:
+    branches: [ "aquaris-E4.5" ]
+  pull_request:
+    branches: [ "aquaris-E4.5" ]
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build container
+        run: docker build -t aquaris-e45-kernel:ci .
+
+      - name: Build kernel (krillin)
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}:/work" \
+            -w /work \
+            aquaris-e45-kernel:ci \
+            bash -lc "./tools/build.sh krillin"
+
+      - name: Collect artifacts
+        run: |
+          mkdir -p artifacts
+          # Grab common outputs if they exist. Don't fail if paths differ.
+          find . -type f \( \
+              -name "zImage" -o -name "Image" -o -name "Image.gz" -o -name "*.dtb" -o -name "*.ko" \
+            \) -print -exec cp --parents -t artifacts {} \; || true
+
+          # Always include build logs if present
+          find . -maxdepth 4 -type f -name "*.log" -print -exec cp --parents -t artifacts {} \; || true
+
+          # If nothing found, still keep a marker so upload step works
+          if [ -z "$(ls -A artifacts)" ]; then
+            echo "No artifacts auto-detected. Build may still be OK; adjust paths in workflow." > artifacts/README.txt
+          fi
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: aquaris-e4.5-kernel-artifacts
+          path: artifacts
+

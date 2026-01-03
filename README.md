@@ -25,3 +25,9 @@ Finally, build the kernel:
 
 	$ ./makeMtk -t krillin n k
 
+## Reproducible builds (recommended)
+
+### Build using Docker
+```bash
+./tools/container-build.sh krillin
+
