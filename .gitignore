@@ -1,3 +1,6 @@
 boot_unpacked/
+boot_template/
 forever_backups/
 out/
+trimmed-sources/
+trimmed-sources.tar.gz

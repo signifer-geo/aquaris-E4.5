@@ -576,6 +576,14 @@ asmlinkage void __init start_kernel(void)
 
 	lockdep_info();
 
+
+	/*
+	 * Early boot printk
+	 */
+	pr_info("### AQUARIS E4.5 TEST KERNEL — 2026-01 ###\n");
+
+
+
 	/*
 	 * Need to run this when irqs are enabled, because it wants
 	 * to self-test [hard/soft]-irqs on/off lock inversion bugs

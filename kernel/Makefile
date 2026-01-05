@@ -4,6 +4,10 @@ SUBLEVEL = 67
 EXTRAVERSION =
 NAME = Saber-toothed Squirrel
 
+# Aquaris E4.5 build identity marker (project bring-up)
+LOCALVERSION := $(LOCALVERSION)-aquaris-e4.5-test01
+
+
 # *DOCUMENTATION*
 # To see a list of typical targets execute "make help"
 # More info can be located in ./README
