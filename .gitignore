@@ -4,3 +4,4 @@ forever_backups/
 out/
 trimmed-sources/
 trimmed-sources.tar.gz
+tmp/
