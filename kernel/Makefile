@@ -5,7 +5,8 @@ EXTRAVERSION =
 NAME = Saber-toothed Squirrel
 
 # Aquaris E4.5 build identity marker (project bring-up)
-LOCALVERSION := $(LOCALVERSION)-aquaris-e4.5-test01
+# LOCALVERSION := $(LOCALVERSION)-aquaris-e4.5-test01
+EXTRAVERSION = -aquaris-e4.5-test01
 
 
 # *DOCUMENTATION*
